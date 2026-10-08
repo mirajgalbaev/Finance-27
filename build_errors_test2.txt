@@ -1,0 +1,165 @@
+﻿Building Windows application...                                 
+flutter : lib/ui/screens
+/planner_screen.dart(357
+,11): error G67247B7E: E
+xpected ';' after this. 
+[C:\Finance 27\build\win
+dows\x64\flutter\flutter
+_assemble.vcxproj]
+At line:1 char:1
++ flutter build windows 
+2>&1 | Out-File -Encodin
+g utf8 build_errors_tes 
+...
++ ~~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo      
+        : NotSpecified: 
+(l    ib/ui/screens/...s
+emb    le.vcxproj]:Strin
+g) [    ], RemoteExcepti
+on
+    + FullyQualifiedErro
+r    Id : NativeCommandE
+rr    or
+ 
+lib/ui/screens/planner_s
+creen.dart(357,12): erro
+r G25387D61: Expected an
+ identifier, but got ','
+. [C:\Finance 27\build\w
+indows\x64\flutter\flutt
+er_assemble.vcxproj]
+lib/ui/screens/planner_s
+creen.dart(357,12): erro
+r G5BADBE1C: Unexpected 
+token ';'. [C:\Finance 2
+7\build\windows\x64\flut
+ter\flutter_assemble.vcx
+proj]
+lib/ui/screens/planner_s
+creen.dart(358,9): error
+ G25387D61: Expected an 
+identifier, but got ']'.
+ [C:\Finance 27\build\wi
+ndows\x64\flutter\flutte
+r_assemble.vcxproj]
+lib/ui/screens/planner_s
+creen.dart(357,12): erro
+r G67247B7E: Expected ';
+' after this. [C:\Financ
+e 27\build\windows\x64\f
+lutter\flutter_assemble.
+vcxproj]
+lib/ui/screens/planner_s
+creen.dart(358,9): error
+ G5BADBE1C: Unexpected t
+oken ';'. [C:\Finance 27
+\build\windows\x64\flutt
+er\flutter_assemble.vcxp
+roj]
+lib/ui/screens/planner_s
+creen.dart(358,10): erro
+r G25387D61: Expected an
+ identifier, but got ','
+. [C:\Finance 27\build\w
+indows\x64\flutter\flutt
+er_assemble.vcxproj]
+lib/ui/screens/planner_s
+creen.dart(358,9): error
+ G67247B7E: Expected ';'
+ after this. [C:\Finance
+ 27\build\windows\x64\fl
+utter\flutter_assemble.v
+cxproj]
+lib/ui/screens/planner_s
+creen.dart(358,10): erro
+r G5BADBE1C: Unexpected 
+token ';'. [C:\Finance 2
+7\build\windows\x64\flut
+ter\flutter_assemble.vcx
+proj]
+lib/ui/screens/planner_s
+creen.dart(359,7): error
+ G25387D61: Expected an 
+identifier, but got ')'.
+ [C:\Finance 27\build\wi
+ndows\x64\flutter\flutte
+r_assemble.vcxproj]
+lib/ui/screens/planner_s
+creen.dart(358,10): erro
+r G67247B7E: Expected ';
+' after this. [C:\Financ
+e 27\build\windows\x64\f
+lutter\flutter_assemble.
+vcxproj]
+lib/ui/screens/planner_s
+creen.dart(359,7): error
+ G5BADBE1C: Unexpected t
+oken ';'. [C:\Finance 27
+\build\windows\x64\flutt
+er\flutter_assemble.vcxp
+roj]
+lib/ui/screens/planner_s
+creen.dart(359,8): error
+ G25387D61: Expected an 
+identifier, but got ','.
+ [C:\Finance 27\build\wi
+ndows\x64\flutter\flutte
+r_assemble.vcxproj]
+lib/ui/screens/planner_s
+creen.dart(359,7): error
+ G67247B7E: Expected ';'
+ after this. [C:\Finance
+ 27\build\windows\x64\fl
+utter\flutter_assemble.v
+cxproj]
+lib/ui/screens/planner_s
+creen.dart(359,8): error
+ G5BADBE1C: Unexpected t
+oken ';'. [C:\Finance 27
+\build\windows\x64\flutt
+er\flutter_assemble.vcxp
+roj]
+lib/ui/screens/planner_s
+creen.dart(360,5): error
+ G25387D61: Expected an 
+identifier, but got ')'.
+ [C:\Finance 27\build\wi
+ndows\x64\flutter\flutte
+r_assemble.vcxproj]
+lib/ui/screens/planner_s
+creen.dart(359,8): error
+ G67247B7E: Expected ';'
+ after this. [C:\Finance
+ 27\build\windows\x64\fl
+utter\flutter_assemble.v
+cxproj]
+lib/ui/screens/planner_s
+creen.dart(360,5): error
+ G5BADBE1C: Unexpected t
+oken ';'. [C:\Finance 27
+\build\windows\x64\flutt
+er\flutter_assemble.vcxp
+roj]
+C:\Program Files\Microso
+ft Visual Studio\2022\Co
+mmunity\MSBuild\Microsof
+t\VC\v170\Microsoft.CppC
+ommon.targets(249,5): er
+ror MSB8066: Custom buil
+d for 'C:\Finance 27\bui
+ld\windows\x64\CMakeFile
+s\f86bae16a364336636c2dc
+488df0ad10\flutter_windo
+ws.dll.rule;C:\Finance 2
+7\build\windows\x64\CMak
+eFiles\4c2a4db352fff0338
+37a3ec28457570b\flutter_
+assemble.rule' exited wi
+th code 1. [C:\Finance 2
+7\build\windows\x64\flut
+ter\flutter_assemble.vcx
+proj]
+Building Windows application...                                    20,1s
+Build process failed.

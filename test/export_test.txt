@@ -1,0 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:finance_app/ui/screens/daily_trade_journal_screen.dart'; // adjust import
+import 'package:finance_app/main.dart'; // adjust import
+
+void main() {
+  testWidgets('Test offscreen capture', (WidgetTester tester) async {
+    // Just a dummy test to see if we can instantiate it
+  });
+}

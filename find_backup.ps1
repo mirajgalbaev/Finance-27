@@ -1,0 +1,1 @@
+Get-ChildItem -Path "C:\Users\User\AppData\Roaming\Code\User\History" -Recurse -File | Where-Object { $_.Length -gt 150000 -and $_.Length -lt 250000 } | Select-Object FullName, Length, LastWriteTime | Format-Table -AutoSize

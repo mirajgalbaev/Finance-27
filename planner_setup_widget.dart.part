@@ -1,0 +1,35 @@
+Container(
+                              color: theme.scaffoldBackgroundColor,
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                 children: [
+                                    const SizedBox(height: 8),
+                                    _buildSummaryBox(locale, activeRems),
+                                    const SizedBox(height: 24),
+                                    Builder(
+                                       builder: (ctx) {
+                                          if (activeRems.isEmpty) {
+                                             return Padding(padding: EdgeInsets.all(32), child: Text(AppStrings.get(ref, 'no_tasks_found') ?? 'Seçili döneme ait görev bulunamadı.', style: TextStyle(color: Colors.white54)));
+                                          }
+
+                                          List<ReminderModel> sortedTasks = List.from(activeRems);
+                                          sortedTasks.sort((a, b) => a.startDate.compareTo(b.startDate));
+
+                                          return Column(
+                                             crossAxisAlignment: CrossAxisAlignment.stretch,
+                                             children: [
+                                                _buildSectionTitle(_isDailyTab ? (AppStrings.get(ref, 'daily_tasks_table') ?? 'GÜNLÜK GÖREVLER TABLOSU') : (AppStrings.get(ref, 'monthly_tasks_table') ?? 'AYLIK GÖREVLER TABLOSU')),
+                                                const SizedBox(height: 12),
+                                                _buildTaskDataTable(ref, sortedTasks, locale, isEmbedded: widget.isEmbeddedView, viewDate: _isDailyTab ? _viewSelectedDate : null),
+                                                const SizedBox(height: 24),
+                                             ]
+                                          );
+                                       }
+                                    ),
+                                 ]
+                              )
+                           )
+                        ),
+                     ],
+                  );
+               }

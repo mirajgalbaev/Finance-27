@@ -1,0 +1,80 @@
+1441:                 runSpacing: 16,
+1442:                 children: [
+1443:                    _buildField(AppStrings.get(ref, 'margin_amount') ?? 'Maliyet (Margin) \$', _capCtrl, half: true, isNum: true),
+1444:                    _buildField(AppStrings.get(ref, 'entry_price') ?? 'Giriş Fiyatı', _entryCtrl, half: true, isNum: true),
+1445:                    _buildField(AppStrings.get(ref, 'exit_price_manual') ?? 'Çıkış Fiyatı (Manuel)', _exitCtrl, half: true, isNum: true),
+1446:                    _buildField('Stop Loss (SL)', _slCtrl, half: true, isNum: true),
+1447:                    if (_selectedMarket == 'Futures') ...[
+1448:                      _buildField('Take Profit (TP-1)', _tpCtrl, half: true, isNum: true),
+1449:                      for (int i = 0; i < _additionalTpCtrls.length; i++)
+1450:                        _buildField('TP-${i + 2}', _additionalTpCtrls[i], half: true, isNum: true),
+1451:                      Align(
+1452:                        alignment: Alignment.centerLeft,
+1453:                        child: TextButton.icon(
+1454:                          onPressed: () {
+1455:                            setState(() {
+1456:                              _additionalTpCtrls.add(TextEditingController());
+1457:                            });
+1458:                          },
+1459:                          icon: const Icon(Icons.add, size: 16, color: Colors.blueAccent),
+1460:                          label: Text(AppStrings.get(ref, 'add_second_tp') ?? 'İkinci TP Ekle', style: TextStyle(fontSize: 12, color: Colors.blueAccent)),
+1461:                        ),
+1462:                      ),
+1463:                    ],
+1464:                    if (_selectedMarket == 'Spot') ...[
+1465:                      _buildField(AppStrings.get(ref, 'buy_tp_1_default') ?? 'Alım TP-1 (Varsayılan)', _tpCtrl, half: true, isNum: true),
+1466:                      for (int i = 0; i < _buyTargetsCtrls.length; i++)
+1467:                        _buildField('${AppStrings.get(ref, 'buy_tp') ?? 'Alım TP'}-${i + 2}', _buyTargetsCtrls[i], half: true, isNum: true),
+1468:                      Align(
+1469:                        alignment: Alignment.centerLeft,
+1470:                        child: TextButton.icon(
+1471:                          onPressed: () {
+1472:                            setState(() {
+1473:                              _buyTargetsCtrls.add(TextEditingController());
+1474:                            });
+1475:                          },
+1476:                          icon: const Icon(Icons.add, size: 16, color: Colors.greenAccent),
+1477:                          label: Text(AppStrings.get(ref, 'add_buy_target') ?? 'Alım Hedefi Ekle', style: const TextStyle(fontSize: 12, color: Colors.greenAccent)),
+1478:                        ),
+1479:                      ),
+1480:                      for (int i = 0; i < _sellTargetsCtrls.length; i++)
+1481:                        _buildField('${AppStrings.get(ref, 'sell_tp') ?? 'Satış TP'}-${i + 1}', _sellTargetsCtrls[i], half: true, isNum: true),
+1482:                      Align(
+1483:                        alignment: Alignment.centerLeft,
+1484:                        child: TextButton.icon(
+1485:                          onPressed: () {
+1486:                            setState(() {
+1487:                              _sellTargetsCtrls.add(TextEditingController());
+1488:                            });
+1489:                          },
+1490:                          icon: const Icon(Icons.add, size: 16, color: Colors.orangeAccent),
+1491:                          label: Text(AppStrings.get(ref, 'add_sell_target') ?? 'Satış Hedefi Ekle', style: const TextStyle(fontSize: 12, color: Colors.orangeAccent)),
+1492:                        ),
+1493:                      ),
+1494:                    ],
+1495:                 ]
+1496:               ),
+1497: 
+1498:               const Divider(color: Colors.white12, height: 32),
+1499: 
+1500:               Container(
+1501:                 padding: const EdgeInsets.all(12),
+1502:                 decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(8)),
+1503:                 child: Row(
+1504:                   children: [
+1505:                     Expanded(child: _buildField(AppStrings.get(ref, 'auto_pnl_pct') ?? 'Otomatik P&L (%)', _pnlPctCtrl, isNum: true, isAutoCompute: true)),
+1506:                     const SizedBox(width: 16),
+1507:                     Expanded(child: _buildField(AppStrings.get(ref, 'auto_pnl_amt') ?? 'Otomatik P&L (\$)', _pnlAmtCtrl, isNum: true, isAutoCompute: true)),
+1508:                   ],
+1509:                 ),
+1510:               ),
+1511:               const SizedBox(height: 16),
+1512:               
+1513:               if (_selectedMarket == 'Futures') ...[
+1514:                 Container(
+1515:                   padding: const EdgeInsets.all(12),
+1516:                   decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(8)),
+1517:                   child: Row(
+1518:                     children: [
+1519:                       Expanded(child: _buildField(AppStrings.get(ref, 'unleveraged_pnl') ?? 'Kaldıraçsız P&L (\$)', _unlevPnlAmtCtrl, isNum: true, isAutoCompute: true)),
+1520:                       const SizedBox(width: 16),

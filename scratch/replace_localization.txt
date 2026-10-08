@@ -1,0 +1,90 @@
+import 'dart:io';
+
+void main() {
+  final Map<String, String> replacements = {
+    // Analytics Screen
+    "'Son 7 Gün'": "AppStrings.get(ref, 'filter_7_days') ?? 'Son 7 Gün'",
+    "'Aylık'": "AppStrings.get(ref, 'filter_monthly') ?? 'Aylık'",
+    "'Yıllık'": "AppStrings.get(ref, 'filter_yearly') ?? 'Yıllık'",
+    "'Tümü'": "AppStrings.get(ref, 'filter_all_time') ?? 'Tümü'",
+    "'Dönem Filtresi'": "AppStrings.get(ref, 'period_filter') ?? 'Dönem Filtresi'",
+    "'7 Gün'": "AppStrings.get(ref, 'filter_7_days') ?? '7 Gün'",
+    "'Finansal Analiz (PNL)'": "AppStrings.get(ref, 'financial_analysis') ?? 'Finansal Analiz (PNL)'",
+    "'Kasa Analizi'": "AppStrings.get(ref, 'jar_analysis') ?? 'Kasa Analizi'",
+    "'Hedeflerin Durumu'": "AppStrings.get(ref, 'goals_status') ?? 'Hedeflerin Durumu'",
+    "'Tamamlanan: '": "AppStrings.get(ref, 'completed_goals_count') ?? 'Tamamlanan: '",
+    "'Devam Eden: '": "AppStrings.get(ref, 'pending_goals_count') ?? 'Devam Eden: '",
+    "'Gelir/Gider Dengesi'": "AppStrings.get(ref, 'income_expense_balance') ?? 'Gelir/Gider Dengesi'",
+    "Text('Kayıt Başarılı!'": "Text(AppStrings.get(ref, 'save_success') ?? 'Kayıt Başarılı!'",
+    "Text('Kayıt başarısız:'": "Text(AppStrings.get(ref, 'save_failed') ?? 'Kayıt başarısız:'",
+
+    // Goals Screen
+    "Text('Hedefler'": "Text(AppStrings.get(ref, 'goals') ?? 'Hedefler'",
+    "'Tümü'": "AppStrings.get(ref, 'tab_all') ?? 'Tümü'",
+    "'Finansal'": "AppStrings.get(ref, 'tab_financial') ?? 'Finansal'",
+    "'Kişisel'": "AppStrings.get(ref, 'tab_personal') ?? 'Kişisel'",
+    "Text('Henüz hedef eklemediniz.')": "Text(AppStrings.get(ref, 'no_goals_yet') ?? 'Henüz hedef eklemediniz.')",
+    "tooltip: 'Yeni Hedef Ekle'": "tooltip: AppStrings.get(ref, 'add_new_goal') ?? 'Yeni Hedef Ekle'",
+    "'Kalan: '": "AppStrings.get(ref, 'remaining') ?? 'Kalan: '",
+    "Text('Tamamlandı!'": "Text(AppStrings.get(ref, 'completed_exclamation') ?? 'Tamamlandı!'",
+    "Text('İlerleme:'": "Text(AppStrings.get(ref, 'progress') ?? 'İlerleme:'",
+
+    // Planner Screen
+    "Text('Görevi Düzenle'": "Text(AppStrings.get(ref, 'edit_task') ?? 'Görevi Düzenle'",
+    "Text('İptal'": "Text(AppStrings.get(ref, 'cancel') ?? 'İptal'",
+    "Text('KAYDET'": "Text(AppStrings.get(ref, 'save_upper') ?? 'KAYDET'",
+    "Text('BUGÜNÜN GÖREVLERİ'": "Text(AppStrings.get(ref, 'todays_tasks') ?? 'BUGÜNÜN GÖREVLERİ'",
+    "Text('Raporu İndir'": "Text(AppStrings.get(ref, 'download_report') ?? 'Raporu İndir'",
+    "Text('İPTAL'": "Text(AppStrings.get(ref, 'cancel_upper') ?? 'İPTAL'",
+    "Text('PNG Olarak'": "Text(AppStrings.get(ref, 'as_png') ?? 'PNG Olarak'",
+    "Text('PDF Olarak'": "Text(AppStrings.get(ref, 'as_pdf') ?? 'PDF Olarak'",
+    "Text('GÜNLÜK İŞLEMLER'": "Text(AppStrings.get(ref, 'daily_transactions') ?? 'GÜNLÜK İŞLEMLER'",
+    "Text('HAFTALIK İŞLEMLER'": "Text(AppStrings.get(ref, 'weekly_transactions') ?? 'HAFTALIK İŞLEMLER'",
+    "Text('AYLIK İŞLEMLER'": "Text(AppStrings.get(ref, 'monthly_transactions') ?? 'AYLIK İŞLEMLER'",
+    "Text('Dışarı Aktar'": "Text(AppStrings.get(ref, 'export') ?? 'Dışarı Aktar'",
+    "Text('AÇIK'": "Text(AppStrings.get(ref, 'open_upper') ?? 'AÇIK'",
+
+    // Table Headers
+    "Text('NO')": "Text(AppStrings.get(ref, 'table_no') ?? 'NO')",
+    "Text('TARİH')": "Text(AppStrings.get(ref, 'table_date') ?? 'TARİH')",
+    "Text('SAAT')": "Text(AppStrings.get(ref, 'table_time') ?? 'SAAT')",
+    "Text('BORSA')": "Text(AppStrings.get(ref, 'table_exchange') ?? 'BORSA')",
+    "Text('PIYASA')": "Text(AppStrings.get(ref, 'table_market') ?? 'PIYASA')",
+    "Text('PARİTE')": "Text(AppStrings.get(ref, 'table_pair') ?? 'PARİTE')",
+    "Text('YÖN')": "Text(AppStrings.get(ref, 'table_direction') ?? 'YÖN')",
+    "Text('KALDIRAÇ')": "Text(AppStrings.get(ref, 'table_leverage') ?? 'KALDIRAÇ')",
+    "Text('SERMAYE')": "Text(AppStrings.get(ref, 'table_capital') ?? 'SERMAYE')",
+    "Text('GİRİŞ')": "Text(AppStrings.get(ref, 'table_entry') ?? 'GİRİŞ')",
+    "Text('ÇIKIŞ')": "Text(AppStrings.get(ref, 'table_exit') ?? 'ÇIKIŞ')",
+    "Text('SL')": "Text(AppStrings.get(ref, 'table_sl') ?? 'SL')",
+    "Text('TP')": "Text(AppStrings.get(ref, 'table_tp') ?? 'TP')",
+    "Text('KAR / ZARAR')": "Text(AppStrings.get(ref, 'table_pnl') ?? 'KAR / ZARAR')",
+    "Text('NOTLAR')": "Text(AppStrings.get(ref, 'table_notes') ?? 'NOTLAR')",
+    "Text('DÜZENLE')": "Text(AppStrings.get(ref, 'edit_upper') ?? 'DÜZENLE')",
+    "Text('SİL')": "Text(AppStrings.get(ref, 'delete_upper') ?? 'SİL')",
+  };
+
+  final directories = [
+    'lib/ui/screens/planner_screen.dart',
+    'lib/ui/screens/analytics_screen.dart',
+    'lib/ui/screens/goals_screen.dart',
+    'lib/ui/screens/goal_detail_screen.dart',
+  ];
+
+  for (final path in directories) {
+    final file = File(path);
+    if (!file.existsSync()) continue;
+    String content = file.readAsStringSync();
+    
+    // Also remove const from const DataColumn and const Text if they exist
+    content = content.replaceAll(RegExp(r'const\s+DataColumn'), 'DataColumn');
+    content = content.replaceAll(RegExp(r'const\s+Text\('), 'Text(');
+    
+    for (final entry in replacements.entries) {
+      content = content.replaceAll(entry.key, entry.value);
+    }
+    
+    file.writeAsStringSync(content);
+    print('Updated $path');
+  }
+}

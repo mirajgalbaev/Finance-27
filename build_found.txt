@@ -1,0 +1,20 @@
+Created At: 2026-09-17T07:06:06+06:00
+Completed At: 2026-09-17T07:08:51+06:00
+
+The command exited with code 0.
+Output:
+
+        )
+      );
+    }
+  
+    @override
+>   Widget build(BuildContext context) {
+      final savedExchanges = ref.watch(exchangeProvider);
+      if (_exchangeCtrl.text.isEmpty && savedExchanges.isNotEmpty) {
+        _exchangeCtrl.text = savedExchanges.first;
+      }
+  
+
+
+

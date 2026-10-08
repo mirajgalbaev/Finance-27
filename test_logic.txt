@@ -1,0 +1,58 @@
+import 'package:intl/intl.dart';
+
+enum JarStatusPeriod { monthly, yearly, lifetime }
+
+class Transaction {
+  final String currency;
+  final double amount;
+  final bool isIncome;
+  final DateTime date;
+  
+  Transaction(this.currency, this.amount, this.isIncome, this.date);
+}
+
+void main() {
+  final transactions = [
+    Transaction('KGS', 6000, true, DateTime(2026, 7, 27)), // Income
+    Transaction('KGS', 1000, false, DateTime(2026, 7, 27)), // Expense
+  ];
+  
+  final now = DateTime(2026, 7, 1);
+  
+  for (var period in JarStatusPeriod.values) {
+    final periodTransactions = transactions.where((t) {
+      if (period == JarStatusPeriod.monthly) return t.date.month == now.month && t.date.year == now.year;
+      if (period == JarStatusPeriod.yearly) return t.date.year == now.year;
+      return true;
+    });
+
+    final rolloverTransactions = transactions.where((t) {
+      if (period == JarStatusPeriod.monthly) {
+        return t.date.isBefore(DateTime(now.year, now.month, 1));
+      } else if (period == JarStatusPeriod.yearly) {
+        return t.date.isBefore(DateTime(now.year, 1, 1));
+      }
+      return false; // Lifetime has no rollover
+    });
+
+    final rolloverBalance = <String, double>{};
+    for (var t in rolloverTransactions) {
+      if (t.isIncome) {
+         rolloverBalance[t.currency] = (rolloverBalance[t.currency] ?? 0.0) + t.amount;
+      } else {
+         rolloverBalance[t.currency] = (rolloverBalance[t.currency] ?? 0.0) - t.amount;
+      }
+    }
+
+    final jarBalance = Map<String, double>.from(rolloverBalance);
+    for (var t in periodTransactions) {
+      if (t.isIncome) {
+         jarBalance[t.currency] = (jarBalance[t.currency] ?? 0.0) + t.amount;
+      } else {
+         jarBalance[t.currency] = (jarBalance[t.currency] ?? 0.0) - t.amount;
+      }
+    }
+    
+    print('Period: ${period.name}, Balance: ${jarBalance['KGS']}');
+  }
+}

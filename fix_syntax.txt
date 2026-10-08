@@ -1,0 +1,206 @@
+import 'dart:io';
+
+void main() {
+  File plannerScreen = File('lib/ui/screens/planner_screen.dart');
+  List<String> lines = plannerScreen.readAsLinesSync();
+  
+  // Find the bounds of _buildDailyPlanTable
+  int startIdx = -1;
+  int endIdx = -1;
+  for (int i = 0; i < lines.length; i++) {
+    if (lines[i].contains('Widget _buildDailyPlanTable(')) {
+      startIdx = i;
+      break;
+    }
+  }
+  
+  // The method currently ends around line 1186 in the modified file.
+  // We want to replace it with a clean version.
+  if (startIdx != -1) {
+    // Find the end of this method block. We'll search for the next method.
+    for (int i = startIdx + 1; i < lines.length; i++) {
+      if (lines[i].contains('Widget _buildDailyPlanSummary(')) {
+        endIdx = i;
+        break;
+      }
+    }
+  }
+
+  if (startIdx != -1 && endIdx != -1) {
+    lines.removeRange(startIdx, endIdx);
+    
+    String cleanMethod = """
+  Widget _buildDailyPlanTable(ThemeData theme, String locale, List<ReminderModel> dayReminders) {
+    if (dayReminders.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: Text('Bu tarih için plan bulunmamaktadır.', style: TextStyle(color: Colors.white30, fontSize: 16)),
+        ),
+      );
+    }
+    
+    final Map<String, List<ReminderModel>> groupedReminders = {};
+    for (var r in dayReminders) {
+      String groupTitle = r.title.contains(' - ') ? r.title.split(' - ').first : r.title;
+      if (!groupedReminders.containsKey(groupTitle)) groupedReminders[groupTitle] = [];
+      groupedReminders[groupTitle]!.add(r);
+    }
+
+    return StatefulBuilder(
+      builder: (context, setTableState) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E293B),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columnSpacing: 24,
+              headingTextStyle: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 12),
+              dataTextStyle: const TextStyle(color: Colors.white, fontSize: 13),
+              columns: const [
+                DataColumn(label: Text('TARİH')),
+                DataColumn(label: Text('SAAT')),
+                DataColumn(label: Text('BAŞLIK / NE İŞ')),
+                DataColumn(label: Text('GÖREVLER')),
+                DataColumn(label: Text('DURUM')),
+                DataColumn(label: Text('DÜZENLE')),
+                DataColumn(label: Text('SİL')),
+              ],
+              rows: groupedReminders.keys.map((groupTitle) {
+                final items = groupedReminders[groupTitle]!;
+                final firstDate = items.first.startDate;
+                final firstTime = items.first.timeText;
+                final isAllCompleted = items.every((r) => r.isCompleted);
+                
+                final isExpanded = _expandedGroups.contains(groupTitle);
+                final displayItems = isExpanded ? items : [items.first];
+                
+                return DataRow(cells: [
+                  DataCell(Text(DateFormat('dd.MM.yyyy').format(firstDate), style: const TextStyle(color: Colors.white54))),
+                  DataCell(Text(firstTime, style: const TextStyle(color: Colors.orangeAccent))),
+                  DataCell(Text(groupTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent))),
+                  DataCell(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ...displayItems.map((item) {
+                            String subTitle = item.title.contains(' - ') ? item.title.substring(item.title.indexOf(' - ') + 3) : item.title;
+                            if (subTitle.trim().isEmpty) subTitle = item.title;
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: Checkbox(
+                                    value: item.isCompleted,
+                                    activeColor: Colors.greenAccent,
+                                    checkColor: Colors.black,
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        ref.read(reminderProvider.notifier).editReminder(
+                                          id: item.id, title: item.title, startDate: item.startDate, timeText: item.timeText, recurrence: item.recurrence, isCompleted: val
+                                        );
+                                      }
+                                    }
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(subTitle, style: TextStyle(color: item.isCompleted ? Colors.grey : Colors.white, decoration: item.isCompleted ? TextDecoration.lineThrough : null)),
+                              ],
+                            );
+                          }).toList(),
+                          if (items.length > 1)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: InkWell(
+                                onTap: () {
+                                  setTableState(() {
+                                    if (isExpanded) {
+                                      _expandedGroups.remove(groupTitle);
+                                    } else {
+                                      _expandedGroups.add(groupTitle);
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blueAccent.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: Colors.blueAccent.withOpacity(0.3))
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 14, color: Colors.blueAccent),
+                                      const SizedBox(width: 4),
+                                      Text(isExpanded ? 'Gizle' : '+\${items.length - 1} Görev Daha', style: const TextStyle(fontSize: 11, color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+                                    ]
+                                  )
+                                )
+                              )
+                            )
+                        ]
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    ElevatedButton(
+                      onPressed: () {
+                        bool targetStatus = !isAllCompleted;
+                        for (var item in items) {
+                           ref.read(reminderProvider.notifier).editReminder(
+                              id: item.id, title: item.title, startDate: item.startDate, timeText: item.timeText, recurrence: item.recurrence, isCompleted: targetStatus
+                           );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isAllCompleted ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                        foregroundColor: isAllCompleted ? Colors.greenAccent : Colors.redAccent,
+                        elevation: 0,
+                        side: BorderSide(color: isAllCompleted ? Colors.green.withOpacity(0.5) : Colors.red.withOpacity(0.5)),
+                      ),
+                      child: Text(isAllCompleted ? 'TAMAMLANDI' : 'TÜMÜNÜ TAMAMLA', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    )
+                  ),
+                  DataCell(
+                    IconButton(
+                       icon: const Icon(Icons.edit, color: Colors.blueAccent, size: 18),
+                       onPressed: () => _showAddPlanDialog(context, initialGroupTitle: groupTitle, initialGroupItems: items),
+                    )
+                  ),
+                  DataCell(
+                    IconButton(
+                       icon: const Icon(Icons.delete, color: Colors.redAccent, size: 18),
+                       onPressed: () {
+                         for (var item in items) {
+                           ref.read(reminderProvider.notifier).deleteReminder(item.id);
+                         }
+                       },
+                    )
+                  ),
+                ]);
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+""";
+    
+    lines.insertAll(startIdx, cleanMethod.split('\n'));
+    plannerScreen.writeAsStringSync(lines.join('\n') + '\n');
+    print('Cleaned up _buildDailyPlanTable successfully.');
+  } else {
+    print('Could not find start or end of _buildDailyPlanTable.');
+  }
+}

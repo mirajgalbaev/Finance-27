@@ -1,0 +1,18 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:finance_app/ui/screens/daily_trade_journal_screen.dart';
+
+void main() {
+  testWidgets('Check if ViewConfiguration throws', (tester) async {
+    final view = tester.view;
+    try {
+      final config = ViewConfiguration(
+        size: const Size(1080, 5000),
+        devicePixelRatio: 2.0,
+      );
+      print("SUCCESS");
+    } catch (e) {
+      print("ERROR: $e");
+    }
+  });
+}

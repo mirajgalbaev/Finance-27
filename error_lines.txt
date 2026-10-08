@@ -1,0 +1,10 @@
+ERROR|COMPILE_TIME_ERROR|UNDEFINED_FUNCTION|C:\\Finance 27\\lib\\providers\\goal_provider.dart|6|22|21|The function 'StateNotifierProvider' isn't defined.
+ERROR|COMPILE_TIME_ERROR|EXTENDS_NON_CLASS|C:\\Finance 27\\lib\\providers\\goal_provider.dart|10|28|13|Classes can only extend other classes.
+ERROR|COMPILE_TIME_ERROR|EXTRA_POSITIONAL_ARGUMENTS|C:\\Finance 27\\lib\\providers\\goal_provider.dart|14|26|2|Too many positional arguments: 0 expected, but 1 found.
+ERROR|COMPILE_TIME_ERROR|UNDEFINED_IDENTIFIER|C:\\Finance 27\\lib\\providers\\goal_provider.dart|19|5|5|Undefined name 'state'.
+ERROR|COMPILE_TIME_ERROR|UNDEFINED_IDENTIFIER|C:\\Finance 27\\lib\\providers\\goal_provider.dart|29|5|5|Undefined name 'state'.
+ERROR|COMPILE_TIME_ERROR|UNDEFINED_IDENTIFIER|C:\\Finance 27\\lib\\providers\\goal_provider.dart|29|17|5|Undefined name 'state'.
+ERROR|COMPILE_TIME_ERROR|UNDEFINED_IDENTIFIER|C:\\Finance 27\\lib\\providers\\goal_provider.dart|34|5|5|Undefined name 'state'.
+ERROR|COMPILE_TIME_ERROR|UNDEFINED_IDENTIFIER|C:\\Finance 27\\lib\\providers\\goal_provider.dart|34|13|5|Undefined name 'state'.
+ERROR|COMPILE_TIME_ERROR|UNDEFINED_IDENTIFIER|C:\\Finance 27\\lib\\providers\\goal_provider.dart|45|5|5|Undefined name 'state'.
+ERROR|COMPILE_TIME_ERROR|UNDEFINED_IDENTIFIER|C:\\Finance 27\\lib\\providers\\goal_provider.dart|45|13|5|Undefined name 'state'.

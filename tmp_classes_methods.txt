@@ -1,0 +1,39 @@
+24: class PlannerScreen extends ConsumerStatefulWidget {
+31: class _PlannerScreenState extends ConsumerState<PlannerScreen> with SingleTickerProviderStateMixin {
+76: class _OverviewTab extends ConsumerStatefulWidget {
+83: class _OverviewTabState extends ConsumerState<_OverviewTab> {
+87: Widget _buildMainTabButton(String title) {
+448: class _OpenTradesPanel extends ConsumerStatefulWidget {
+455: class _OpenTradesPanelState extends ConsumerState<_OpenTradesPanel> {
+458: Widget _buildTabButton(String title) {
+631: class _DailyPlanTab extends ConsumerStatefulWidget {
+640: class SubTaskModel {
+647: class PlannerSetupFullScreen extends ConsumerStatefulWidget {
+654: class _PlannerSetupFullScreenState extends ConsumerState<PlannerSetupFullScreen> {
+1003: Widget _buildProfessionalDateTimeSelectors(ThemeData theme) {
+1201: Widget _buildTitleForm(ThemeData theme) {
+1265: Widget _buildSubTasksList(ThemeData theme) {
+1409: class MultiDateSelectionDialog extends StatefulWidget {
+1417: class _MultiDateSelectionDialogState extends State<MultiDateSelectionDialog> {
+1552: Widget _buildFinanceStyleCalendarGrid(List<ReminderModel> allReminders) {
+1653: Widget _buildSummaryBox(String locale, List<ReminderModel> monthReminders) {
+1734: Widget _buildTaskDataTable(List<ReminderModel> tasks, String locale) {
+1822: Widget _buildStatBox(String label, String value, Color color) {
+1833: class _DailyPlanTabState extends ConsumerState<_DailyPlanTab> {
+1978: Widget _buildSectionTitle(String title) {
+1988: Widget _buildTaskDataTable(List<ReminderModel> tasks, String locale) {
+2154: Widget _buildFinanceStyleCalendarGrid(List<ReminderModel> allReminders) {
+2255: Widget _buildDailySummaryBox(String locale, List<ReminderModel> monthReminders) {
+2342: Widget _buildSectionTitle(String title) {
+2352: Widget _buildStatBox(String label, String value, Color color) {
+2363: class _FinancePlanTabInner extends ConsumerStatefulWidget {
+2370: class _FinancePlanTabInnerState extends ConsumerState<_FinancePlanTabInner> {
+2437: Widget _buildMonthSelector(ThemeData theme, String locale) {
+2487: Widget _buildTabButton(String title) {
+2509: Widget _buildMonthlyTradeTable(ThemeData theme, String locale, String currencySymbol, List<TradeModel> displayedTrades) {
+2728: Widget _buildExchangeBlock(String exchange, List<TradeModel> exchangeTrades, String currencySymbol, String locale, ThemeData theme) {
+2781: Widget _buildMonthlyCalendarGrid() {
+2898: Widget _buildMonthlyTradeSummary(ThemeData theme, String locale, List<TradeModel> displayedTrades, String exchange) {
+3016: Widget _buildGlobalMonthlyGrandTotalSummary(List<TradeModel> displayedTrades, String currencySymbol, String locale) {
+3077: Widget _buildStatBox(String title, String value, Color color) {
+3087: Widget _buildLineChart(List<TradeModel> trades) {

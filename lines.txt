@@ -1,0 +1,9 @@
+1388:                     ),
+1389:                   ),
+1390:                   ], // close else block
+1391:                 ],
+1392:               ),
+1393:               if (_selectedMarket == 'Futures') ...[
+1394:                 const SizedBox(height: 16),
+1395:                 Text(AppStrings.get(ref, 'leverage_label') ?? 'Kaldıraç (Leverage)', style: TextStyle(color: Colors.white54, fontSize: 12)),
+1396:                 Row(

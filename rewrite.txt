@@ -1,0 +1,425 @@
+import 'dart:io';
+
+void main() {
+  File plannerScreen = File('lib/ui/screens/planner_screen.dart');
+  List<String> lines = plannerScreen.readAsLinesSync();
+  int startIdx = 1287; // line 1288
+  int endIdx = 1639;   // line 1640
+  lines.removeRange(startIdx, endIdx);
+  
+  String newCode = """
+  void _showDailyDetailDialog(BuildContext context, DateTime cellDate) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) {
+          final theme = Theme.of(context);
+          final locale = AppStrings.getDateFormatLocale(ref.watch(localeProvider));
+          
+          return Consumer(
+             builder: (context, consumerRef, child) {
+                 final reminders = consumerRef.watch(reminderProvider.notifier).getRemindersForDate(cellDate);
+                 return Scaffold(
+                    backgroundColor: const Color(0xFF0F172A),
+                    appBar: AppBar(
+                      title: Text('GÜNLÜK GÖREV ROTA: \${DateFormat('dd.MM.yyyy').format(cellDate)}', style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                      backgroundColor: theme.scaffoldBackgroundColor,
+                      centerTitle: true,
+                    ),
+                    body: Padding(
+                       padding: const EdgeInsets.all(24),
+                       child: SingleChildScrollView(
+                          child: Column(
+                             crossAxisAlignment: CrossAxisAlignment.stretch,
+                             children: [
+                               ElevatedButton.icon(
+                                 onPressed: () {
+                                    _showAddPlanDialog(context, defaultDate: cellDate);
+                                 },
+                                 icon: const Icon(Icons.add_task, size: 24),
+                                 label: const Text('YENİ GÖREV ATA', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                                 style: ElevatedButton.styleFrom(
+                                   backgroundColor: Colors.blueAccent,
+                                   foregroundColor: Colors.white,
+                                   padding: const EdgeInsets.symmetric(vertical: 24),
+                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                 ),
+                               ),
+                               const SizedBox(height: 32),
+                               _buildDailyPlanTable(theme, locale, reminders),
+                               const SizedBox(height: 32),
+                               _buildDailyPlanSummary(theme, locale, reminders),
+                             ]
+                          )
+                       )
+                    )
+                 );
+             }
+          );
+       }
+      )
+    );
+  }
+
+  void _showAddPlanDialog(BuildContext context, {DateTime? defaultDate, String? initialGroupTitle, List<ReminderModel>? initialGroupItems}) {
+    DateTime taskDate = defaultDate ?? _currentMonth;
+    TimeOfDay taskTime = TimeOfDay.now();
+    TextEditingController titleCtrl = TextEditingController(text: initialGroupTitle ?? '');
+    List<SubTaskModel> subtasks = [];
+    bool alarmEnabled = false;
+    
+    if (initialGroupTitle != null && initialGroupItems != null) {
+       subtasks = initialGroupItems.map((item) {
+         String subTitle = item.title.contains(' - ') ? item.title.substring(item.title.indexOf(' - ') + 3) : item.title;
+         if (subTitle.trim().isEmpty) subTitle = item.title;
+         TimeOfDay time = TimeOfDay.now();
+         try {
+            final parts = item.timeText.split(RegExp(r'[: ]'));
+            int hour = int.parse(parts[0]);
+            int minute = int.parse(parts[1]);
+            if (item.timeText.toLowerCase().contains('pm') && hour < 12) hour += 12;
+            if (item.timeText.toLowerCase().contains('am') && hour == 12) hour = 0;
+            time = TimeOfDay(hour: hour, minute: minute);
+         } catch (_) {}
+         return SubTaskModel(title: subTitle, dates: [item.startDate], time: time);
+       }).toList();
+       if (subtasks.isNotEmpty) {
+           taskTime = subtasks.first.time;
+           taskDate = subtasks.first.dates.first;
+       }
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) {
+          final theme = Theme.of(context);
+          return StatefulBuilder(
+             builder: (context, setDialogState) {
+                final savedTitles = Hive.box('settings').get('planner_templates', defaultValue: <String>[]);
+                final suggestions = List<String>.from(savedTitles)..sort();
+
+                return Scaffold(
+                  backgroundColor: const Color(0xFF0B1120),
+                  appBar: AppBar(
+                    title: const Text('Yeni Görev Planla', style: TextStyle(fontWeight: FontWeight.bold)),
+                    centerTitle: true,
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    actions: [
+                      IconButton(
+                        icon: Icon(alarmEnabled ? Icons.notifications_active : Icons.notifications_off, color: alarmEnabled ? Colors.orangeAccent : Colors.grey),
+                        onPressed: () {
+                           // Try playing sound to preview it
+                           if (!alarmEnabled) {
+                              try {
+                                 final player = AudioPlayer();
+                                 player.play(AssetSource('dog.ogg'));
+                              } catch (_) {}
+                           }
+                           setDialogState(() => alarmEnabled = !alarmEnabled);
+                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(alarmEnabled ? 'Köpek Havlaması Alarmı Aktif!' : 'Alarm Kapatıldı.'), duration: const Duration(seconds: 1)));
+                        },
+                        tooltip: 'Köpek Alarmı Ekle',
+                      )
+                    ]
+                  ),
+                  body: Center(
+                     child: Container(
+                       width: 800,
+                       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                       child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                               // Time Row
+                               Row(
+                                 children: [
+                                   Expanded(
+                                     child: InkWell(
+                                       onTap: () async {
+                                          final picked = await showDatePicker(context: context, initialDate: taskDate, firstDate: DateTime(2000), lastDate: DateTime(2100));
+                                          if (picked != null) setDialogState(() => taskDate = picked);
+                                       },
+                                       child: Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                                          decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.blueAccent.withOpacity(0.3), width: 1.5)),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(Icons.date_range, color: Colors.blueAccent, size: 28),
+                                              const SizedBox(width: 12),
+                                              Text(DateFormat('dd MMM yyyy').format(taskDate), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                                            ]
+                                          )
+                                       )
+                                     )
+                                   ),
+                                   const SizedBox(width: 16),
+                                   Expanded(
+                                     child: InkWell(
+                                       onTap: () async {
+                                         final t = await showTimePicker(context: context, initialTime: taskTime);
+                                         if (t != null) setDialogState(() => taskTime = t);
+                                       },
+                                       child: Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                                          decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.orangeAccent.withOpacity(0.3), width: 1.5)),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(Icons.access_time, color: Colors.orangeAccent, size: 28),
+                                              const SizedBox(width: 12),
+                                              Text(taskTime.format(context), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                                            ]
+                                          )
+                                       )
+                                     )
+                                   )
+                                 ]
+                               ),
+                               const SizedBox(height: 32),
+                               
+                               // Autocomplete Title
+                               Row(
+                                  children: [
+                                     Expanded(
+                                        child: Autocomplete<String>(
+                                          optionsBuilder: (TextEditingValue textEditingValue) {
+                                            if (textEditingValue.text.isEmpty) return suggestions;
+                                            return suggestions.where((String option) => option.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                                          },
+                                          onSelected: (String selection) {
+                                            titleCtrl.text = selection;
+                                          },
+                                          fieldViewBuilder: (context, fieldController, focusNode, onFieldSubmitted) {
+                                            if (fieldController.text.isEmpty && titleCtrl.text.isNotEmpty) fieldController.text = titleCtrl.text;
+                                            fieldController.addListener(() {
+                                              if (titleCtrl.text != fieldController.text) titleCtrl.text = fieldController.text;
+                                            });
+                                            return TextField(
+                                              controller: fieldController,
+                                              focusNode: focusNode,
+                                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                                              decoration: InputDecoration(
+                                                labelText: 'Ana Plan Başlığı (örn: Binance, Egzersiz)',
+                                                hintText: 'Plan ismi girin...',
+                                                filled: true,
+                                                contentPadding: const EdgeInsets.all(24),
+                                                fillColor: theme.cardColor.withOpacity(0.5),
+                                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.withOpacity(0.2))),
+                                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.blueAccent, width: 2)),
+                                                prefixIcon: const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Icon(Icons.title, color: Colors.blueAccent)),
+                                                suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                                              ),
+                                            );
+                                          },
+                                          optionsViewBuilder: (context, onSelected, options) {
+                                            return Align(
+                                              alignment: Alignment.topLeft,
+                                              child: Material(
+                                                elevation: 8.0,
+                                                borderRadius: BorderRadius.circular(12),
+                                                color: theme.cardColor,
+                                                child: ConstrainedBox(
+                                                  constraints: const BoxConstraints(maxHeight: 300, maxWidth: 600),
+                                                  child: ListView.separated(
+                                                    padding: EdgeInsets.zero,
+                                                    shrinkWrap: true,
+                                                    itemCount: options.length,
+                                                    separatorBuilder: (context, i) => Divider(height: 1, color: Colors.grey.withOpacity(0.2)),
+                                                    itemBuilder: (BuildContext context, int index) {
+                                                      final String option = options.elementAt(index);
+                                                      return InkWell(
+                                                        onTap: () => onSelected(option),
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(20.0),
+                                                          child: Text(option, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        )
+                                     ),
+                                     const SizedBox(width: 16),
+                                     Container(
+                                        height: 70,
+                                        decoration: BoxDecoration(color: Colors.greenAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.greenAccent.withOpacity(0.4))),
+                                        child: IconButton(
+                                           icon: const Icon(Icons.save, color: Colors.greenAccent, size: 28),
+                                           tooltip: 'Hafızaya Ekle',
+                                           onPressed: () {
+                                              if (titleCtrl.text.trim().isNotEmpty) {
+                                                 if (!suggestions.contains(titleCtrl.text.trim())) {
+                                                    suggestions.add(titleCtrl.text.trim());
+                                                    Hive.box('settings').put('planner_templates', suggestions);
+                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('\${titleCtrl.text.trim()} hafızaya eklendi!'), backgroundColor: Colors.green));
+                                                    setDialogState((){});
+                                                 }
+                                              }
+                                           }
+                                        )
+                                     ),
+                                     const SizedBox(width: 8),
+                                     Container(
+                                        height: 70,
+                                        decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.redAccent.withOpacity(0.4))),
+                                        child: IconButton(
+                                           icon: const Icon(Icons.delete, color: Colors.redAccent, size: 28),
+                                           tooltip: 'Hafızadan Çıkar',
+                                           onPressed: () {
+                                              if (titleCtrl.text.trim().isNotEmpty) {
+                                                 if (suggestions.contains(titleCtrl.text.trim())) {
+                                                    suggestions.remove(titleCtrl.text.trim());
+                                                    Hive.box('settings').put('planner_templates', suggestions);
+                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('\${titleCtrl.text.trim()} hafızadan silindi!'), backgroundColor: Colors.redAccent));
+                                                    titleCtrl.clear();
+                                                    setDialogState((){});
+                                                 }
+                                              }
+                                           }
+                                        )
+                                     ),
+                                  ]
+                               ),
+                               const SizedBox(height: 32),
+                               
+                               // Subtasks Header
+                               Row(
+                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                 children: [
+                                   const Text('Alt Görevler', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 18)),
+                                   OutlinedButton.icon(
+                                     onPressed: () {
+                                       setDialogState(() {
+                                         subtasks.add(SubTaskModel(title: '', dates: [taskDate], time: taskTime));
+                                       });
+                                     },
+                                     icon: const Icon(Icons.add_circle_outline, color: Colors.greenAccent),
+                                     label: const Text('VARSA ALT GÖREV EKLE', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+                                     style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                        side: BorderSide(color: Colors.greenAccent.withOpacity(0.5))
+                                     )
+                                   )
+                                 ]
+                               ),
+                               const SizedBox(height: 16),
+                               if (subtasks.isEmpty)
+                                 Container(
+                                   padding: const EdgeInsets.all(24),
+                                   decoration: BoxDecoration(color: Colors.blueAccent.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.blueAccent.withOpacity(0.2))),
+                                   child: const Center(child: Text('Alt görev eklemezseniz yazdığınız Ana Plan başlığı kaydedilecektir.', style: TextStyle(color: Colors.blueAccent, fontSize: 13, fontStyle: FontStyle.italic))),
+                                 )
+                               else
+                                 ListView.builder(
+                                   shrinkWrap: true,
+                                   physics: const NeverScrollableScrollPhysics(),
+                                   itemCount: subtasks.length,
+                                   itemBuilder: (context, index) {
+                                     final subTask = subtasks[index];
+                                     return Container(
+                                       margin: const EdgeInsets.only(bottom: 16),
+                                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                       decoration: BoxDecoration(
+                                         color: const Color(0xFF1E293B),
+                                         borderRadius: BorderRadius.circular(12),
+                                         border: Border.all(color: Colors.grey.withOpacity(0.15)),
+                                       ),
+                                       child: Row(
+                                         children: [
+                                           Expanded(
+                                             child: TextField(
+                                               decoration: InputDecoration(
+                                                 hintText: 'Alt Görev #\${index + 1}',
+                                                 hintStyle: const TextStyle(color: Colors.white30, fontSize: 15),
+                                                 border: InputBorder.none,
+                                                 isDense: true,
+                                                 contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                               ),
+                                               controller: TextEditingController(text: subTask.title)..selection = TextSelection.collapsed(offset: subTask.title.length),
+                                               onChanged: (val) => subTask.title = val,
+                                               style: const TextStyle(color: Colors.white, fontSize: 16),
+                                             ),
+                                           ),
+                                           Container(
+                                              decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.1), shape: BoxShape.circle),
+                                              child: IconButton(
+                                                icon: const Icon(Icons.close, color: Colors.redAccent, size: 24),
+                                                onPressed: () => setDialogState(() => subtasks.removeAt(index)),
+                                              )
+                                           )
+                                         ],
+                                       ),
+                                     );
+                                   },
+                                 ),
+                                 
+                               const SizedBox(height: 64),
+                               ElevatedButton(
+                                 style: ElevatedButton.styleFrom(
+                                   backgroundColor: Colors.blueAccent,
+                                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+                                 ),
+                                 onPressed: () async {
+                                   final title = titleCtrl.text.trim();
+                                   if (title.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lütfen Ana Plan Başlığı girin.')));
+                                      return;
+                                   }
+                                   if (initialGroupItems != null) {
+                                     for (var r in initialGroupItems) {
+                                       ref.read(reminderProvider.notifier).deleteReminder(r.id);
+                                     }
+                                   }
+                                   
+                                   // Note: To implement persistent alarm background firing in windows is out of scope 
+                                   // without complex native C++ services. However we save the preference visually for future use, 
+                                   // or we could use the actual alarm mechanism if it exists.
+                                   // We'll append an emoji to signal an alarm in the title.
+                                   String alarmIndicator = alarmEnabled ? ' 🐕🔔' : '';
+                                   String baseTitle = title + alarmIndicator;
+
+                                   if (subtasks.isEmpty) {
+                                      await ref.read(reminderProvider.notifier).addReminder(
+                                        title: baseTitle,
+                                        startDate: taskDate,
+                                        timeText: taskTime.format(context),
+                                        recurrence: 'none'
+                                      );
+                                   } else {
+                                      for (var sub in subtasks) {
+                                        if (sub.title.trim().isEmpty) continue;
+                                        await ref.read(reminderProvider.notifier).addReminder(
+                                          title: '\$baseTitle - \${sub.title.trim()}',
+                                          startDate: sub.dates.first,
+                                          timeText: sub.time.format(context),
+                                          recurrence: 'none'
+                                        );
+                                      }
+                                   }
+                                   if (context.mounted) Navigator.pop(context);
+                                 },
+                                 child: const Text('KAYIŞLARI BAĞLA VE ATA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 2)),
+                               ),
+                            ]
+                          )
+                       )
+                     )
+                  )
+                );
+             }
+          );
+        }
+      )
+    );
+  }
+""";
+
+  lines.insertAll(startIdx, newCode.split('\n'));
+  plannerScreen.writeAsStringSync(lines.join('\n') + '\n');
+}

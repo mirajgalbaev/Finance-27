@@ -1,0 +1,180 @@
+1221:         ],
+1222:       ),
+1223:       content: SizedBox(
+1224:         width: 600,
+1225:         child: SingleChildScrollView(
+1226:           child: Column(
+1227:             crossAxisAlignment: CrossAxisAlignment.stretch,
+1228:             children: [
+1229:               Wrap(
+1230:                 spacing: 16,
+1231:                 runSpacing: 16,
+1232:                 children: [
+1233:                   _buildField(AppStrings.get(ref, 'time') ?? 'Saat', null, onTap: () async {
+1234:                     final t = await showTimePicker(context: context, initialTime: _time);
+1235:                     if (t != null) setState(() => _time = t);
+1236:                   }, textOverride: _time.format(context), half: true),
+1237:                   
+1238:                   // Exchange Selector
+1239:                   if (_selectedMarket != 'MT5') ...[
+1240:                   SizedBox(
+1241:                     width: 260,
+1242:                     child: Row(
+1243:                       children: [
+1244:                         Expanded(
+1245:                           child: DropdownButtonFormField<String>(
+1246:                             value: savedExchanges.contains(_exchangeCtrl.text) ? _exchangeCtrl.text : (savedExchanges.isNotEmpty ? savedExchanges.first : null),
+1247:                             dropdownColor: const Color(0xFF1E293B),
+1248:                             decoration: InputDecoration(
+1249:                               labelText: AppStrings.get(ref, 'exchange_label') ?? 'Borsa',
+1250:                               labelStyle: const TextStyle(color: Colors.white54),
+1251:                               filled: true, fillColor: const Color(0x33000000),
+1252:                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+1253:                               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+1254:                             ),
+1255:                             style: const TextStyle(color: Colors.white),
+1256:                             items: savedExchanges.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+1257:                             onChanged: (val) {
+1258:                               if (val != null) setState(() { _exchangeCtrl.text = val; });
+1259:                             },
+1260:                           ),
+1261:                         ),
+1262:                         Row(
+1263:                           mainAxisSize: MainAxisSize.min,
+1264:                           children: [
+1265:                             IconButton(
+1266:                               icon: const Icon(Icons.add_circle, color: Colors.blueAccent),
+1267:                               tooltip: 'Yeni Ekle',
+1268:                               padding: EdgeInsets.zero,
+1269:                               constraints: const BoxConstraints(),
+1270:                               onPressed: () => _showAddNewExchangeDialog(context),
+1271:                             ),
+1272:                             const SizedBox(width: 8),
+1273:                             if (_exchangeCtrl.text.isNotEmpty && savedExchanges.contains(_exchangeCtrl.text))
+1274:                               IconButton(
+1275:                                 icon: const Icon(Icons.remove_circle, color: Colors.redAccent),
+1276:                                 tooltip: AppStrings.get(ref, 'delete_exchange_tooltip') ?? 'Borsayı Sil',
+1277:                                 padding: EdgeInsets.zero,
+1278:                                 constraints: const BoxConstraints(),
+1279:                                 onPressed: () {
+1280:                                   final ex = _exchangeCtrl.text;
+1281:                                   if (savedExchanges.length > 1) {
+1282:                                     ref.read(exchangeProvider.notifier).removeExchange(ex);
+1283:                                     setState(() {
+1284:                                       _exchangeCtrl.text = savedExchanges.firstWhere((e) => e != ex, orElse: () => '');
+1285:                                     });
+1286:                                   } else {
+1287:                                     ScaffoldMessenger.of(context).showSnackBar(
+1288:                                       SnackBar(content: Text(AppStrings.get(ref, 'min_1_exchange') ?? 'En az 1 borsa kalmalıdır.', style: TextStyle(color: Colors.white)), backgroundColor: Colors.redAccent),
+1289:                                     );
+1290:                                   }
+1291:                                 },
+1292:                               ),
+1293:                           ],
+1294:                         ),
+1295:                       ],
+1296:                     ),
+1297:                   ),
+1298: 
+1299:                   _buildField(AppStrings.get(ref, 'pair_hint') ?? 'Parite (Örn: BTC/USDT)', _pairCtrl, half: true),
+1300:                   
+1301:                   // Market Selector
+1302:                   SizedBox(
+1303:                     width: 260,
+1304:                     child: DropdownButtonFormField<String>(
+1305:                       value: _selectedMarket,
+1306:                       dropdownColor: const Color(0xFF1E293B),
+1307:                       decoration: InputDecoration(
+1308:                         labelText: AppStrings.get(ref, 'market_label') ?? 'Piyasa',
+1309:                         labelStyle: const TextStyle(color: Colors.white54),
+1310:                         filled: true, fillColor: Colors.black26,
+1311:                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+1312:                       ),
+1313:                       style: const TextStyle(color: Colors.white),
+1314:                       items: ['Spot', 'Futures', 'MT5'].map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+1315:                       onChanged: (v) {
+1316:                         setState(() {
+1317:                           _selectedMarket = v!;
+1318:                           if (v == 'Spot') {
+1319:                              _leverage = 1.0;
+1320:                              _selectedType = 'Long'; // Spot genelde sadece alımdır
+1321:                           }
+1322:                           _calculatePnL();
+1323:                         });
+1324:                       },
+1325:                     ),
+1326:                   ),
+1327: 
+1328:                   // Type Selector
+1329:                   if (_selectedMarket == 'MT5')
+1330:                     MT5CalculatorWidget(
+1331:                       pairCtrl: _pairCtrl,
+1332:                       entryCtrl: _entryCtrl,
+1333:                       slCtrl: _slCtrl,
+1334:                       tpCtrl: _tpCtrl,
+1335:                       onTypeChanged: (type) => setState(() => _selectedType = type),
+1336:                       onRiskAmountCalculated: (riskAmt) => setState(() => _capCtrl.text = riskAmt.toString()),
+1337:                     ),
+1338:                   if (_selectedMarket != 'MT5') ...[
+1339:                   if (_selectedMarket != 'Spot')
+1340:                     SizedBox(
+1341:                       width: 260,
+1342:                       child: DropdownButtonFormField<String>(
+1343:                         value: _selectedType,
+1344:                         dropdownColor: const Color(0xFF1E293B),
+1345:                         decoration: InputDecoration(
+1346:                           labelText: AppStrings.get(ref, 'direction') ?? 'Yön',
+1347:                           labelStyle: const TextStyle(color: Colors.white54),
+1348:                           filled: true, fillColor: Colors.black26,
+1349:                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+1350:                         ),
+1351:                         style: TextStyle(color: _selectedType == 'Long' ? Colors.greenAccent : Colors.redAccent, fontWeight: FontWeight.bold),
+1352:                         items: ['Long', 'Short'].map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+1353:                         onChanged: (v) {
+1354:                           setState(() {
+1355:                             _selectedType = v!;
+1356:                             _calculatePnL();
+1357:                           });
+1358:                         },
+1359:                       ),
+1360:                     ),
+1361: 
+1362:                   // Close Type Selector
+1363:                   SizedBox(
+1364:                     width: 260,
+1365:                     child: DropdownButtonFormField<String>(
+1366:                       value: _closeType,
+1367:                       dropdownColor: const Color(0xFF1E293B),
+1368:                       decoration: InputDecoration(
+1369:                         labelText: AppStrings.get(ref, 'close_type_label') ?? 'Kapanış Türü',
+1370:                         labelStyle: const TextStyle(color: Colors.white54),
+1371:                         filled: true, fillColor: Colors.black26,
+1372:                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+1373:                       ),
+1374:                       style: const TextStyle(color: Colors.white),
+1375:                       items: ['Manuel Çıkış', 'TP Vuruldu', 'SL Vuruldu'].map((m) {
+1376:                         String label = m;
+1377:                         if (m == 'Manuel Çıkış') label = AppStrings.get(ref, 'manual_exit') ?? m;
+1378:                         if (m == 'TP Vuruldu') label = AppStrings.get(ref, 'tp_hit') ?? m;
+1379:                         if (m == 'SL Vuruldu') label = AppStrings.get(ref, 'sl_hit') ?? m;
+1380:                         return DropdownMenuItem(value: m, child: Text(label));
+1381:                       }).toList(),
+1382:                       onChanged: (v) {
+1383:                         setState(() {
+1384:                           _closeType = v!;
+1385:                           _calculatePnL();
+1386:                         });
+1387:                       },
+1388:                     ),
+1389:                   ),
+1390:                   ], // close else block
+1391:                 ],
+1392:               ),
+1393:               if (_selectedMarket == 'Futures') ...[
+1394:                 const SizedBox(height: 16),
+1395:                 Text(AppStrings.get(ref, 'leverage_label') ?? 'Kaldıraç (Leverage)', style: TextStyle(color: Colors.white54, fontSize: 12)),
+1396:                 Row(
+1397:                   children: [
+1398:                     Expanded(
+1399:                       child: Slider(
+1400:                         value: _leverage,
